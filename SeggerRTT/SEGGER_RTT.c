@@ -60,7 +60,7 @@ File    : SEGGER_RTT.c
 Purpose : Implementation of SEGGER real-time transfer (RTT) which
           allows real-time communication on targets which support
           debugger memory accesses while the CPU is running.
-Revision: $Rev: 258 $
+Revision: $Rev: 268 $
 
 Additional information:
           Type "int" is assumed to be 32-bits in size
@@ -125,7 +125,7 @@ Additional information:
 #endif
 
 #ifndef   SEGGER_RTT_MODE_DEFAULT
-  #define SEGGER_RTT_MODE_DEFAULT                         SEGGER_RTT_MODE_NO_BLOCK_SKIP
+  #define SEGGER_RTT_MODE_DEFAULT                         SEGGER_RTT_MODE_BLOCK_IF_FIFO_FULL
 #endif
 
 #ifndef   SEGGER_RTT_LOCK

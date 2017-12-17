@@ -1,8 +1,10 @@
 //----------------------------------------------------------------------------
+// Namespace:   mbed
+// Class:       SeggerRTT
 // Description: Alternative stdio read/write interface function for Segger RTT
 // Copyright:   (c) 2017 Mark <0x6d61726b@gmail.com>
 // License:     MIT License
-// SVN:         $Id: retarget_segger_rtt.cpp 258 2017-10-20 22:28:51Z 0x6d61726b $
+// SVN:         $Id: retarget_segger_rtt.cpp 268 2017-12-17 12:03:39Z 0x6d61726b $
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Permission is hereby granted, free of charge, to any person obtaining a
 // copy of this software and associated documentation files (the "Software"),
@@ -22,29 +24,42 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 //----------------------------------------------------------------------------
-#include "platform/mbed_retarget_alt.h"
-#include "SeggerRTT/SEGGER_RTT.h"
+#include "retarget_segger_rtt.h"
+#include "platform/mbed_retarget.h"
+#include "platform/mbed_poll.h"
 
-
-void retarget_stdio_init_alt(unsigned int fh)
-{
-    // initialize the Segger RTT interface
-    SEGGER_RTT_Init();
-}
-
-
-int retarget_stdio_write_alt(unsigned int fh, const unsigned char *buffer, unsigned int length)
-{
-    // write the buffer content to the terminal
-    return SEGGER_RTT_Write(0, buffer, length);
-}
-
-
-int retarget_stdio_read_alt(unsigned int fh, unsigned char *buffer, unsigned int length)
-{
-    // wait until a character becomes available
-    while (!SEGGER_RTT_HasKey());
+namespace mbed {
     
-    // read the characters from the terminal into the buffer
-    return SEGGER_RTT_Read(0, buffer, length);
+    // retarget stdin/stdout/stderr to Segger RTT
+    static SeggerRTT fhSeggerRtt;
+    FileHandle *mbed_target_override_console(int fd) {
+        if ((fd == STDIN_FILENO) || (fd == STDOUT_FILENO) || (fd == STDERR_FILENO))
+            return &fhSeggerRtt;
+        else
+            return NULL;
+    }
+    
+    ssize_t SeggerRTT::write(const void *buffer, size_t size) {
+        // write the buffer content to the terminal
+        return SEGGER_RTT_Write(0, buffer, size);
+    }
+    
+    ssize_t SeggerRTT::read(void *buffer, size_t size) {
+        // wait until a character becomes available
+        while (!SEGGER_RTT_HasKey()) {}
+    
+        // read the characters from the terminal into the buffer
+        return SEGGER_RTT_Read(0, buffer, size);
+    }
+    
+    short SeggerRTT::poll(short events) const {
+        short revents = 0;
+        if ((events & POLLIN) && SEGGER_RTT_HasKey()) {
+            revents |= POLLIN;
+        }
+        if (events & POLLOUT) {
+            revents |= POLLOUT;
+        }
+        return revents;
+    }
 }
