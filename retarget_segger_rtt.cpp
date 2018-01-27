@@ -4,7 +4,7 @@
 // Description: Alternative stdio read/write interface function for Segger RTT
 // Copyright:   (c) 2017 Mark <0x6d61726b@gmail.com>
 // License:     MIT License
-// SVN:         $Id: retarget_segger_rtt.cpp 268 2017-12-17 12:03:39Z 0x6d61726b $
+// SVN:         $Id: retarget_segger_rtt.cpp 269 2018-01-27 08:08:06Z mark@svn.srv02.net $
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Permission is hereby granted, free of charge, to any person obtaining a
 // copy of this software and associated documentation files (the "Software"),
@@ -32,11 +32,8 @@ namespace mbed {
     
     // retarget stdin/stdout/stderr to Segger RTT
     static SeggerRTT fhSeggerRtt;
-    FileHandle *mbed_target_override_console(int fd) {
-        if ((fd == STDIN_FILENO) || (fd == STDOUT_FILENO) || (fd == STDERR_FILENO))
-            return &fhSeggerRtt;
-        else
-            return NULL;
+    FileHandle *mbed_override_console(int fd) {
+        return &fhSeggerRtt;
     }
     
     ssize_t SeggerRTT::write(const void *buffer, size_t size) {
