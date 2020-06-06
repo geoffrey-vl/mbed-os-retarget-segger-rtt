@@ -30,11 +30,13 @@
 
 namespace mbed {
     
+#if MBED_CONF_MBED_SEGGER_RTT_OVERRIDE_CONSOLE
     // retarget stdin/stdout/stderr to Segger RTT
     static SeggerRTT fhSeggerRtt;
     FileHandle *mbed_override_console(int fd) {
         return &fhSeggerRtt;
     }
+#endif
     
     ssize_t SeggerRTT::write(const void *buffer, size_t size) {
         // write the buffer content to the terminal

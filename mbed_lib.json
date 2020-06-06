@@ -1,0 +1,9 @@
+{
+    "name": "mbed-segger-rtt",
+    "config": {
+        "override_console": {
+            "help": "When set true Segger RTT will be used as the mbed-os console",
+            "value": false
+        }
+    }
+}
